@@ -1,6 +1,13 @@
-const Database = require('better-sqlite3');
+const initSqlJs = require('sql.js');
 
-// In-memory DB — lives as long as the server runs
-const db = new Database(':memory:');
+let db = null;
 
-module.exports = db;
+async function getDb() {
+  if (!db) {
+    const SQL = await initSqlJs();
+    db = new SQL.Database();
+  }
+  return db;
+}
+
+module.exports = { getDb };

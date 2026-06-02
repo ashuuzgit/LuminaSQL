@@ -1,11 +1,10 @@
 const express = require('express');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-const db = require('../config/db');
+const Groq = require('groq-sdk');
+const { getDb } = require('../config/db.js');
 
 const router = express.Router();
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 router.post('/query', async (req, res) => {
   const { question, columns, sampleRows } = req.body;
@@ -37,60 +36,73 @@ User's question: "${question}"
 
 SQL:`;
 
-  try {
-    // Call Gemini
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    
-    // Extract and clean the SQL
-    let sql = response.text().trim()
-      .replace(/```sql/gi, '')
-      .replace(/```/g, '')
-      .trim();
+  let sql = '';
 
-    // Safety guard - prevent destructive SQL
-    const forbiddenKeywords = /\b(DROP|DELETE|UPDATE|INSERT|ALTER|TRUNCATE)\b/i;
+  try {
+    const completion = await groq.chat.completions.create({
+      model: 'llama-3.3-70b-versatile',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.1,
+    });
+
+    sql = completion.choices[0].message.content.trim()
+  .replace(/```sql/gi, '')
+  .replace(/```/g, '')
+  .replace(/`([^`]*)`/g, '"$1"')   // backtick-wrapped → double quoted
+  .replace(/;$/, '')
+  .trim();
+
+// Wrap any unquoted multi-word column names that exist in the dataset
+for (const col of columns) {
+  if (col.includes(' ')) {
+    // replace unquoted occurrences of the column name
+    const escaped = col.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(?<!["\`])\\b${escaped}\\b(?!["\`])`, 'g');
+    sql = sql.replace(regex, `"${col}"`);
+  }
+}
+    const forbiddenKeywords = /^\s*(DROP|DELETE|UPDATE|INSERT|ALTER|TRUNCATE)\b/i;
     if (forbiddenKeywords.test(sql)) {
       return res.status(400).json({ error: 'Query not permitted', sql });
     }
 
-    // Execute on SQLite
-    const results = db.prepare(sql).all();
+    const db = await getDb();
 
-    res.json({ 
-      sql, 
-      results,
-      rowCount: results.length
-    });
+    // sql.js returns results differently — convert to array of objects
+    const stmt = db.prepare(sql);
+    const results = [];
+    while (stmt.step()) {
+      results.push(stmt.getAsObject());
+    }
+    stmt.free();
+
+    res.json({ sql, results, rowCount: results.length });
 
   } catch (err) {
-    console.error('Query error:', err);
-    res.status(500).json({ error: err.message });
+    console.error('=== QUERY ERROR ===');
+    console.error('SQL attempted:', sql);
+    console.error('Error:', err.message);
+    res.status(500).json({ error: err.message, sql });
   }
 });
 
 // Endpoint to get table info
-router.get('/table-info', (req, res) => {
+router.get('/table-info', async (req, res) => {
   try {
-    const tableInfo = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='dataset'").get();
-    
-    if (!tableInfo) {
-      return res.json({ 
-        hasData: false, 
-        columns: [], 
-        rowCount: 0 
-      });
+    const db = await getDb();
+
+    const tableCheck = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name='dataset'");
+    if (!tableCheck.length || !tableCheck[0].values.length) {
+      return res.json({ hasData: false, columns: [], rowCount: 0 });
     }
 
-    const columnsInfo = db.prepare("PRAGMA table_info(dataset)").all();
-    const columns = columnsInfo.map(col => col.name);
-    const countResult = db.prepare("SELECT COUNT(*) as count FROM dataset").get();
-    
-    res.json({ 
-      hasData: true, 
-      columns, 
-      rowCount: countResult.count 
-    });
+    const colResult = db.exec("PRAGMA table_info(dataset)");
+    const columns = colResult[0].values.map(row => row[1]);
+
+    const countResult = db.exec("SELECT COUNT(*) FROM dataset");
+    const rowCount = countResult[0].values[0][0];
+
+    res.json({ hasData: true, columns, rowCount });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
