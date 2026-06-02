@@ -3,8 +3,12 @@
 @tailwind utilities;
 
 :root {
-  color-scheme: light;
-  font-family: "IBM Plex Serif", serif;
+  color-scheme: dark;
+  font-family: "Roboto Mono", monospace;
+  --golden-ratio: 1.618;
+  --golden-heading-size: 2.618rem;
+  --golden-button-height: 2.618rem;
+  --golden-button-padding-inline: 1.618rem;
 }
 
 html {
@@ -14,8 +18,9 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
-  background: #f9f9ff;
-  color: #0f172a;
+  background: radial-gradient(circle at top left, rgba(139, 166, 255, 0.18), transparent 25%),
+    linear-gradient(180deg, #0b1220 0%, #070b16 100%);
+  color: #f8fafc;
 }
 
 * {
@@ -30,7 +35,49 @@ textarea {
 }
 
 ::selection {
-  background: rgba(0, 61, 155, 0.18);
+  background: rgba(248, 250, 252, 0.18);
+}
+
+.roboto-mono-400,
+.roboto-mono-500,
+.roboto-mono-600,
+.roboto-mono-700 {
+  font-family: "Roboto Mono", monospace;
+  font-optical-sizing: auto;
+  font-style: normal;
+}
+
+.roboto-mono-400 {
+  font-weight: 400;
+}
+
+.roboto-mono-500 {
+  font-weight: 500;
+}
+
+.roboto-mono-600 {
+  font-weight: 600;
+}
+
+.roboto-mono-700 {
+  font-weight: 700;
+}
+
+.heading-golden {
+  font-family: "Roboto Mono", monospace;
+  font-size: var(--golden-heading-size);
+  line-height: 1.05;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--golden-button-height);
+  padding-inline: var(--golden-button-padding-inline);
+  border-radius: calc(var(--golden-button-height) / var(--golden-ratio));
+  font-weight: 600;
+  text-decoration: none;
 }
 
 .animate-stripes {
@@ -53,86 +100,3 @@ textarea {
   }
 }
 
-.ibm-plex-serif-thin {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 100;
-  font-style: normal;
-}
-
-.ibm-plex-serif-extralight {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 200;
-  font-style: normal;
-}
-
-.ibm-plex-serif-light {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 300;
-  font-style: normal;
-}
-
-.ibm-plex-serif-regular {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 400;
-  font-style: normal;
-}
-
-.ibm-plex-serif-medium {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 500;
-  font-style: normal;
-}
-
-.ibm-plex-serif-semibold {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 600;
-  font-style: normal;
-}
-
-.ibm-plex-serif-bold {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 700;
-  font-style: normal;
-}
-
-.ibm-plex-serif-thin-italic {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 100;
-  font-style: italic;
-}
-
-.ibm-plex-serif-extralight-italic {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 200;
-  font-style: italic;
-}
-
-.ibm-plex-serif-light-italic {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 300;
-  font-style: italic;
-}
-
-.ibm-plex-serif-regular-italic {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 400;
-  font-style: italic;
-}
-
-.ibm-plex-serif-medium-italic {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 500;
-  font-style: italic;
-}
-
-.ibm-plex-serif-semibold-italic {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 600;
-  font-style: italic;
-}
-
-.ibm-plex-serif-bold-italic {
-  font-family: "IBM Plex Serif", serif;
-  font-weight: 700;
-  font-style: italic;
-}

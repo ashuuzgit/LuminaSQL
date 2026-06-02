@@ -13,10 +13,10 @@ export default function ColumnSelector({ columns, selectedColumns, onChange }: C
   };
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-[#f8fbff] p-4">
-      <div className="mb-2 text-sm font-semibold text-slate-900">Select Columns (Optional)</div>
+    <div className="rounded-3xl border border-slate-700 bg-slate-950 p-4">
+      <div className="mb-2 text-sm font-semibold text-slate-100">Select Columns (Optional)</div>
       <select
-        className="w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-[#003d9b] focus:ring-2 focus:ring-[#003d9b] focus:ring-opacity-20"
+        className="w-full rounded-2xl border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-100 outline-none focus:border-[#003d9b] focus:ring-2 focus:ring-[#003d9b] focus:ring-opacity-20"
         multiple
         size={Math.min(6, columns.length)}
         value={selectedColumns}

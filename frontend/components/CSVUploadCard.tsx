@@ -46,13 +46,13 @@ export default function CSVUploadCard({
   };
 
   return (
-    <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-card">
+    <div className="rounded-3xl border border-slate-700 bg-slate-950 p-6 shadow-card">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold text-slate-900">CSV Upload</p>
-          <p className="mt-1 text-sm text-slate-500">Upload a file to analyze with LuminaSQL.</p>
+          <p className="text-sm font-semibold text-slate-100">CSV Upload</p>
+          <p className="mt-1 text-sm text-slate-400">Upload a file to analyze with LuminaSQL.</p>
         </div>
-        <div className="rounded-2xl bg-[#eff4ff] px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#003d9b]">
+        <div className="rounded-2xl bg-slate-800 px-3 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-100">
           {fileName ? "Uploaded" : "Ready"}
         </div>
       </div>
@@ -66,14 +66,14 @@ export default function CSVUploadCard({
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
         className={`mt-6 flex h-52 cursor-pointer flex-col items-center justify-center rounded-3xl border-2 border-dashed px-5 text-center transition ${
-          dragOver ? "border-[#003d9b] bg-[#f0f3ff]" : "border-[#cbd5e1] bg-[#fafbff]"
+          dragOver ? "border-[#3d6bc9] bg-slate-900" : "border-slate-700 bg-slate-950"
         }`}
       >
-        <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-[#e2e8ff] text-2xl text-[#003d9b]">
+        <div className="flex h-14 w-14 items-center justify-center rounded-3xl bg-slate-800 text-2xl text-slate-100">
           ⬆️
         </div>
-        <p className="mt-4 text-sm font-semibold text-slate-900">Drag and drop file here</p>
-        <p className="mt-2 text-sm text-slate-500">or click to browse</p>
+        <p className="mt-4 text-sm font-semibold text-slate-100">Drag and drop file here</p>
+        <p className="mt-2 text-sm text-slate-400">or click to browse</p>
         <input
           ref={fileInputRef}
           type="file"
@@ -84,7 +84,7 @@ export default function CSVUploadCard({
       </div>
 
       <div className="mt-4 flex flex-col gap-3">
-        <div className="flex items-center justify-between rounded-2xl bg-[#f8fbff] px-4 py-3 text-sm text-slate-700">
+        <div className="flex items-center justify-between rounded-2xl bg-slate-900 px-4 py-3 text-sm text-slate-200">
           <span>{fileName || "No file selected"}</span>
           <span>{rowCount ? `${rowCount} rows` : "No rows yet"}</span>
         </div>

@@ -6,21 +6,15 @@ interface TopBarProps {
 
 export default function TopBar({ title }: TopBarProps) {
   return (
-    <header className="flex items-center justify-between border-b border-[#e7eeff] bg-white px-8 py-3">
-      <h1 className="font-[var(--font-manrope)] text-xl font-semibold text-[#003d9b]">
+    <header className="flex items-center justify-between border-b border-slate-800 bg-slate-950 px-8 py-3">
+      <h1 className="heading-golden text-slate-100">
         {title}
       </h1>
 
       <div className="flex items-center gap-4">
-        {["🔔", "❓", "⚙️"].map((icon) => (
-          <button
-            key={icon}
-            type="button"
-            className="rounded-full p-2 text-slate-500 hover:bg-slate-100"
-          >
-            <span>{icon}</span>
-          </button>
-        ))}
+        <div className="rounded-full bg-slate-900 px-4 py-2 text-sm text-slate-300">
+          No new notifications
+        </div>
         <UserButton afterSignOutUrl="/sign-in" />
       </div>
     </header>
