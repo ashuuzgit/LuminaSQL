@@ -9,6 +9,7 @@ interface UseDataFlowReturn {
   rowCount: number;
   uploading: boolean;
   uploadProgress: number;
+  uploadSuccess: boolean;
   fileName: string;
   question: string;
   setQuestion: (value: string) => void;
@@ -29,6 +30,7 @@ export function useDataFlow(): UseDataFlowReturn {
   const [rowCount, setRowCount] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [uploadSuccess, setUploadSuccess] = useState(false);
   const [fileName, setFileName] = useState("");
   const [question, setQuestion] = useState("");
   const [sql, setSql] = useState("");
@@ -43,6 +45,7 @@ export function useDataFlow(): UseDataFlowReturn {
     setFileName(file.name);
     setUploadProgress(0);
     setError("");
+    setUploadSuccess(false);
 
     const interval = window.setInterval(() => {
       setUploadProgress((p) => Math.min(p + 10, 90));
@@ -57,6 +60,10 @@ export function useDataFlow(): UseDataFlowReturn {
       setSampleRows(data.preview || []);
       setRowCount(data.rowCount || 0);
       setUploadProgress(100);
+      setUploadSuccess(true);
+      
+      // Reset highlight after 3 seconds
+      setTimeout(() => setUploadSuccess(false), 3000);
     } catch (err) {
       console.error(err);
       setError("Upload failed");
@@ -64,6 +71,7 @@ export function useDataFlow(): UseDataFlowReturn {
       setColumns([]);
       setSampleRows([]);
       setRowCount(0);
+      setUploadSuccess(false);
     } finally {
       window.clearInterval(interval);
       setUploading(false);
@@ -71,7 +79,15 @@ export function useDataFlow(): UseDataFlowReturn {
   };
 
   const handleQuery = async () => {
-    if (!question.trim() || !columns.length) return;
+    if (!question.trim()) {
+      setError("Please enter a question");
+      return;
+    }
+    if (!columns.length) {
+      setError("Please upload a CSV file first");
+      return;
+    }
+    
     setLoading(true);
     setError("");
 
@@ -84,9 +100,22 @@ export function useDataFlow(): UseDataFlowReturn {
       setSql(data.sql || "");
       setResults(data.results || []);
       setTotalMatches(data.results?.length ?? 0);
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError("Query failed");
+      
+      // Check if it's a validation error (invalid query)
+      const errorMessage = err.response?.data?.message || err.message || "";
+      if (
+        errorMessage.toLowerCase().includes("invalid") ||
+        errorMessage.toLowerCase().includes("syntax") ||
+        errorMessage.toLowerCase().includes("cannot parse") ||
+        err.response?.status === 400
+      ) {
+        setError("Invalid query - Please rephrase your question");
+      } else {
+        setError("Query failed - Please try again");
+      }
+      
       setSql("");
       setResults([]);
       setTotalMatches(0);
@@ -101,6 +130,7 @@ export function useDataFlow(): UseDataFlowReturn {
     rowCount,
     uploading,
     uploadProgress,
+    uploadSuccess,
     fileName,
     question,
     setQuestion,
